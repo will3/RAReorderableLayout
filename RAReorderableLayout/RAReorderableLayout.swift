@@ -8,6 +8,7 @@
 
 import UIKit
 
+@objc
 public protocol RAReorderableLayoutDelegate: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, willMoveTo toIndexPath: IndexPath)
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, didMoveTo toIndexPath: IndexPath)
@@ -20,6 +21,7 @@ public protocol RAReorderableLayoutDelegate: UICollectionViewDelegateFlowLayout 
     func collectionView(_ collectionView: UICollectionView, collectionView layout: RAReorderableLayout, didEndDraggingItemTo indexPath: IndexPath)
 }
 
+@objc
 public protocol RAReorderableLayoutDataSource: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
@@ -84,12 +86,12 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         }
     }
     
-     public weak var delegate: RAReorderableLayoutDelegate? {
+    public weak var delegate: RAReorderableLayoutDelegate? {
         get { return collectionView?.delegate as? RAReorderableLayoutDelegate }
         set { collectionView?.delegate = delegate }
     }
     
-     public weak var dataSource: RAReorderableLayoutDataSource? {
+    public weak var dataSource: RAReorderableLayoutDataSource? {
         set { collectionView?.dataSource = dataSource }
         get { return collectionView?.dataSource as? RAReorderableLayoutDataSource }
     }
@@ -204,17 +206,17 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
     
     override open func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributesArray = super.layoutAttributesForElements(in: rect) else { return nil }
-
+        
         attributesArray.filter {
             $0.representedElementCategory == .cell
-        }.filter {
-            $0.indexPath == (cellFakeView?.indexPath)
-        }.forEach {
-            // reordering cell alpha
-            
-            $0.alpha = dataSource?.collectionView(self.collectionView!, reorderingItemAlphaInSection: $0.indexPath.section) ?? 0
+            }.filter {
+                $0.indexPath == (cellFakeView?.indexPath)
+            }.forEach {
+                // reordering cell alpha
+                
+                $0.alpha = dataSource?.collectionView(self.collectionView!, reorderingItemAlphaInSection: $0.indexPath.section) ?? 0
         }
-
+        
         return attributesArray
     }
     
@@ -367,8 +369,8 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
             }
             collectionView.addGestureRecognizer(self.longPress!)
             collectionView.addGestureRecognizer(self.panGesture!)
-            }
         }
+    }
     
     open func cancelDrag() {
         cancelDrag(nil)
@@ -424,7 +426,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
             fakeCellCenter = cellFakeView!.center
             
             invalidateLayout()
-
+            
             cellFakeView?.pushFowardView()
             
             // did begin drag item
@@ -558,12 +560,6 @@ private class RACellFakeView: UIView {
                 self.center = self.originalCenter!
                 self.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
                 self.cellFakeHightedView!.alpha = 0;
-                let shadowAnimation = CABasicAnimation(keyPath: "shadowOpacity")
-                shadowAnimation.fromValue = 0
-                shadowAnimation.toValue = 0.7
-                shadowAnimation.isRemovedOnCompletion = false
-                shadowAnimation.fillMode = kCAFillModeForwards
-                self.layer.add(shadowAnimation, forKey: "applyShadow")
             },
             completion: { _ in
                 self.cellFakeHightedView?.removeFromSuperview()
@@ -579,12 +575,6 @@ private class RACellFakeView: UIView {
             animations: {
                 self.transform = CGAffineTransform.identity
                 self.frame = self.cellFrame!
-                let shadowAnimation = CABasicAnimation(keyPath: "shadowOpacity")
-                shadowAnimation.fromValue = 0.7
-                shadowAnimation.toValue = 0
-                shadowAnimation.isRemovedOnCompletion = false
-                shadowAnimation.fillMode = kCAFillModeForwards
-                self.layer.add(shadowAnimation, forKey: "removeShadow")
             },
             completion: { _ in
                 completion?()
@@ -596,7 +586,7 @@ private class RACellFakeView: UIView {
         UIGraphicsBeginImageContextWithOptions(cell!.bounds.size, false, UIScreen.main.scale * 2)
         defer { UIGraphicsEndImageContext() }
         cell!.drawHierarchy(in: cell!.bounds, afterScreenUpdates: true)
-
+        
         return UIGraphicsGetImageFromCurrentImageContext()!
     }
 }
